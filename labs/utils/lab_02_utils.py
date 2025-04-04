@@ -362,7 +362,6 @@ def test_2_1(find_contour, images_p_a, images_p_b):
     cnt_p_a = find_contour(images_p_a)
     cnt_p_b = find_contour(images_p_b)
 
-    print(len(cnt_p_a))
 
     # Define plot titles
     title_a = "Preprocessed {}s w/ contours (n={})".format(label_a, n_plot)
