@@ -113,7 +113,7 @@ def extract_hsv_channels(img):
     
     return data_h, data_s, data_v
 
-def apply_hsv_threshold(img):
+def apply_hsv_threshold(img, H_min=0, H_max=1, S_min=0, S_max=1, V_min=0, V_max=1):
     """
     Apply threshold to the input image in hsv colorspace.
 
@@ -136,9 +136,10 @@ def apply_hsv_threshold(img):
     data_h, data_s, data_v = extract_hsv_channels(img=img)
     
     # ------------------
-    img_white=(data_s<0.25) & (data_v>0.8) #white filter
-    img_purple=(data_s>0.4) & (data_v<0.6) #purple filter  
-    img_th=img_purple
+    img_H = (data_h > H_min) & (data_h < H_max) #hue filter
+    img_S = (data_s > S_min) & (data_s < S_max) #saturation filter
+    img_V = (data_v > V_min) & (data_v < V_max) #value filter
+    img_th = img_H & img_S & img_V #combine filters
     # ------------------
     
     return  img_th
@@ -251,7 +252,7 @@ def remove_objects(img_th, size):
     return img_obj
 
 
-def apply_morphology(img_th):
+def apply_morphology(img_th, kernel_size=4, min_area_th=500, min_obj_size=250, connect=1):
     """
     Apply morphology to thresholded image
 
@@ -269,19 +270,15 @@ def apply_morphology(img_th):
     img_morph = np.zeros_like(img_th)
     
     # ------------------
-    min_area_th = 500
-    min_obj_size = 250
-
-    img_morph = closing(img_th, disk(2))
-    img_morph = opening(img_morph, disk(2))
-    img_morph = remove_small_holes(img_morph, area_threshold=min_area_th, connectivity=1, out=None)
-    img_morph = remove_small_objects(img_morph, min_size=min_obj_size, connectivity=1, out=None)
-    # img_morph = closing(img_th, disk(2))
-    # img_morph = opening(img_morph, disk(2))
-
+    img_morph = opening(img_morph, disk(kernel_size))
+    img_morph = closing(img_th, disk(kernel_size))
+    img_morph = remove_small_holes(img_morph, area_threshold=min_area_th, connectivity=connect, out=None)
+    img_morph = remove_small_objects(img_morph, min_size=min_obj_size, connectivity=connect, out=None)
+    img_morph = closing(img_th, disk(kernel_size))
+    img_morph = opening(img_morph, disk(kernel_size))
     # ------------------
-    
     return img_morph
+
 
 
 def region_growing(
