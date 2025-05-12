@@ -5,6 +5,7 @@ from PIL import Image
 from sklearn.cluster import MiniBatchKMeans
 import cv2
 from typing import Literal
+import math
 
 
 def load_reference_images(path):
@@ -62,6 +63,50 @@ def plot_reference_image(images_dict, label):
     plt.imshow(images_dict[label])
     plt.title(label)
     plt.axis('off')
+    plt.show()
+
+def plot_ref_images_vs_filtered(reference_dict, reference_labels):
+    """
+    Plot the original and filtered images for each reference image.
+    Args:
+        reference_dict (dict): Dictionary containing reference images and their properties.
+        reference_labels (list): List of labels corresponding to the reference images.
+    """
+
+    # Calculate the number of rows needed for 3 columns
+    num_rows = math.ceil(len(reference_labels))
+
+    # Create a figure with subplots
+    fig, axes = plt.subplots(num_rows, 3, figsize=(18, 4.5 * num_rows))
+    fig.suptitle("Filtered vs Original Images", fontsize=16)
+
+    # Flatten the axes array for easier indexing
+    axes = axes.flatten()
+
+    for i, label in enumerate(reference_labels):
+        # Original image (first column)
+        original_image = reference_dict[label]['image']
+        axes[i * 3].imshow(original_image)
+        axes[i * 3].set_title(f"Original: {label}")
+        axes[i * 3].axis('off')
+
+        # Filtered image (second column)
+        filtered_image = reference_dict[label]['canny']
+        axes[i * 3 + 1].imshow(filtered_image, cmap='gray')
+        axes[i * 3 + 1].set_title(f"Filtered: {label}")
+        axes[i * 3 + 1].axis('off')
+
+        # Another filtered image (third column)
+        filtered_image_morph = reference_dict[label]['canny_morph']
+        axes[i * 3 + 2].imshow(filtered_image_morph, cmap='gray')
+        axes[i * 3 + 2].set_title(f"Filtered Morph: {label}")
+        axes[i * 3 + 2].axis('off')
+
+    # Hide any unused subplots
+    for j in range(len(reference_labels) * 3, len(axes)):
+        axes[j].axis('off')
+
+    plt.tight_layout(rect=[0, 0.03, 1, 0.95])
     plt.show()
 
 def load_train_images(path):
