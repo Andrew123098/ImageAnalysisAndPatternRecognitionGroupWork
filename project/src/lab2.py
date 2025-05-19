@@ -123,6 +123,11 @@ def find_contour(images: np.ndarray):
         else:
 
             print(f"Warning: No valid contour found for image {i}")
+            print("Displaying the image:")
+            plt.imshow(images[i], cmap='gray')
+            plt.title(f"No contour found for image {i}")
+            plt.axis('off')
+            plt.show()
       # ------------------
     return contours
 
